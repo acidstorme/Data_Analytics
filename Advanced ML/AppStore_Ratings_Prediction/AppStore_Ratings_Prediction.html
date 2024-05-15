@@ -1,0 +1,3452 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "78f3a9ec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "import warnings\n",
+    "warnings.filterwarnings('ignore')\n",
+    "\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.preprocessing import StandardScaler, MinMaxScaler\n",
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "from sklearn.tree import DecisionTreeClassifier\n",
+    "from sklearn.ensemble import RandomForestClassifier,BaggingClassifier, AdaBoostClassifier, GradientBoostingClassifier, StackingClassifier\n",
+    "from sklearn.metrics import accuracy_score,classification_report,confusion_matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "cac05053",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>App</th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Last Updated</th>\n",
+       "      <th>Current Ver</th>\n",
+       "      <th>Android Ver</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Photo Editor &amp; Candy Camera &amp; Grid &amp; ScrapBook</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>159</td>\n",
+       "      <td>19M</td>\n",
+       "      <td>10,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>January 7, 2018</td>\n",
+       "      <td>1.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Coloring book moana</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>3.9</td>\n",
+       "      <td>967</td>\n",
+       "      <td>14M</td>\n",
+       "      <td>500,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>January 15, 2018</td>\n",
+       "      <td>2.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>U Launcher Lite – FREE Live Cool Themes, Hide ...</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.7</td>\n",
+       "      <td>87510</td>\n",
+       "      <td>8.7M</td>\n",
+       "      <td>5,000,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>August 1, 2018</td>\n",
+       "      <td>1.2.4</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Sketch - Draw &amp; Paint</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>215644</td>\n",
+       "      <td>25M</td>\n",
+       "      <td>50,000,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>June 8, 2018</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>4.2 and up</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Pixel Draw - Number Art Coloring Book</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>967</td>\n",
+       "      <td>2.8M</td>\n",
+       "      <td>100,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>June 20, 2018</td>\n",
+       "      <td>1.1</td>\n",
+       "      <td>4.4 and up</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                 App        Category  Rating  \\\n",
+       "0     Photo Editor & Candy Camera & Grid & ScrapBook  ART_AND_DESIGN     4.1   \n",
+       "1                                Coloring book moana  ART_AND_DESIGN     3.9   \n",
+       "2  U Launcher Lite – FREE Live Cool Themes, Hide ...  ART_AND_DESIGN     4.7   \n",
+       "3                              Sketch - Draw & Paint  ART_AND_DESIGN     4.5   \n",
+       "4              Pixel Draw - Number Art Coloring Book  ART_AND_DESIGN     4.3   \n",
+       "\n",
+       "  Reviews  Size     Installs  Type Price Content Rating  \\\n",
+       "0     159   19M      10,000+  Free     0       Everyone   \n",
+       "1     967   14M     500,000+  Free     0       Everyone   \n",
+       "2   87510  8.7M   5,000,000+  Free     0       Everyone   \n",
+       "3  215644   25M  50,000,000+  Free     0           Teen   \n",
+       "4     967  2.8M     100,000+  Free     0       Everyone   \n",
+       "\n",
+       "                      Genres      Last Updated         Current Ver  \\\n",
+       "0               Art & Design   January 7, 2018               1.0.0   \n",
+       "1  Art & Design;Pretend Play  January 15, 2018               2.0.0   \n",
+       "2               Art & Design    August 1, 2018               1.2.4   \n",
+       "3               Art & Design      June 8, 2018  Varies with device   \n",
+       "4    Art & Design;Creativity     June 20, 2018                 1.1   \n",
+       "\n",
+       "    Android Ver  \n",
+       "0  4.0.3 and up  \n",
+       "1  4.0.3 and up  \n",
+       "2  4.0.3 and up  \n",
+       "3    4.2 and up  \n",
+       "4    4.4 and up  "
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = pd.read_csv('Apps_data.csv')\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "000b8ce6",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(10841, 13)"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "9e08c8cb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 10841 entries, 0 to 10840\n",
+      "Data columns (total 13 columns):\n",
+      " #   Column          Non-Null Count  Dtype  \n",
+      "---  ------          --------------  -----  \n",
+      " 0   App             10841 non-null  object \n",
+      " 1   Category        10841 non-null  object \n",
+      " 2   Rating          9367 non-null   float64\n",
+      " 3   Reviews         10841 non-null  object \n",
+      " 4   Size            10841 non-null  object \n",
+      " 5   Installs        10841 non-null  object \n",
+      " 6   Type            10840 non-null  object \n",
+      " 7   Price           10841 non-null  object \n",
+      " 8   Content Rating  10840 non-null  object \n",
+      " 9   Genres          10841 non-null  object \n",
+      " 10  Last Updated    10841 non-null  object \n",
+      " 11  Current Ver     10833 non-null  object \n",
+      " 12  Android Ver     10838 non-null  object \n",
+      "dtypes: float64(1), object(12)\n",
+      "memory usage: 1.1+ MB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "c8a62994",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "483"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(df[df.duplicated()])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "bd7d53a6",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.drop_duplicates(inplace=True)\n",
+    "len(df[df.duplicated()])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "82eb8c71",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>count</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>std</th>\n",
+       "      <th>min</th>\n",
+       "      <th>25%</th>\n",
+       "      <th>50%</th>\n",
+       "      <th>75%</th>\n",
+       "      <th>max</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>Rating</th>\n",
+       "      <td>8893.0</td>\n",
+       "      <td>4.189542</td>\n",
+       "      <td>0.545452</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>19.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         count      mean       std  min  25%  50%  75%   max\n",
+       "Rating  8893.0  4.189542  0.545452  1.0  4.0  4.3  4.5  19.0"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe().T"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "6a4a1e02",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>App</th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Last Updated</th>\n",
+       "      <th>Current Ver</th>\n",
+       "      <th>Android Ver</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>10358</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10357</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10357</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10358</td>\n",
+       "      <td>10350</td>\n",
+       "      <td>10355</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>unique</th>\n",
+       "      <td>9660</td>\n",
+       "      <td>34</td>\n",
+       "      <td>6002</td>\n",
+       "      <td>462</td>\n",
+       "      <td>22</td>\n",
+       "      <td>3</td>\n",
+       "      <td>93</td>\n",
+       "      <td>6</td>\n",
+       "      <td>120</td>\n",
+       "      <td>1378</td>\n",
+       "      <td>2832</td>\n",
+       "      <td>33</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>top</th>\n",
+       "      <td>ROBLOX</td>\n",
+       "      <td>FAMILY</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>1,000,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Tools</td>\n",
+       "      <td>August 3, 2018</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>4.1 and up</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>freq</th>\n",
+       "      <td>9</td>\n",
+       "      <td>1943</td>\n",
+       "      <td>593</td>\n",
+       "      <td>1526</td>\n",
+       "      <td>1488</td>\n",
+       "      <td>9591</td>\n",
+       "      <td>9592</td>\n",
+       "      <td>8382</td>\n",
+       "      <td>842</td>\n",
+       "      <td>298</td>\n",
+       "      <td>1302</td>\n",
+       "      <td>2379</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           App Category Reviews                Size    Installs   Type  Price  \\\n",
+       "count    10358    10358   10358               10358       10358  10357  10358   \n",
+       "unique    9660       34    6002                 462          22      3     93   \n",
+       "top     ROBLOX   FAMILY       0  Varies with device  1,000,000+   Free      0   \n",
+       "freq         9     1943     593                1526        1488   9591   9592   \n",
+       "\n",
+       "       Content Rating Genres    Last Updated         Current Ver Android Ver  \n",
+       "count           10357  10358           10358               10350       10355  \n",
+       "unique              6    120            1378                2832          33  \n",
+       "top          Everyone  Tools  August 3, 2018  Varies with device  4.1 and up  \n",
+       "freq             8382    842             298                1302        2379  "
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe(include='O')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1720d9f6",
+   "metadata": {},
+   "source": [
+    "## Statistical Summary Inference\n",
+    "\n",
+    "- Lowest rating is 1 and highest rating is 19 (which seems to be an outlier) and the average rating is around 4.2 \n",
+    "- There are 9660 unique apps, and the most installed game is Roblox\n",
+    "- Out of 34 unique categories most of them are Family oriented apps\n",
+    "- There are 462 different sizes of apps and most of them vary with device\n",
+    "- Out of 22 unique brackets of installation counts, 1,000,000+ is the most frequent\n",
+    "- There are 93 different prices for apps and the most installed are Free apps\n",
+    "- Out of 120 genres Tools is the most popular\n",
+    "- Most apps installed require android version 4.1 and up"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "e3323abe",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FAMILY                 1943\n",
+       "GAME                   1121\n",
+       "TOOLS                   843\n",
+       "BUSINESS                427\n",
+       "MEDICAL                 408\n",
+       "PRODUCTIVITY            407\n",
+       "PERSONALIZATION         388\n",
+       "LIFESTYLE               373\n",
+       "COMMUNICATION           366\n",
+       "FINANCE                 360\n",
+       "SPORTS                  351\n",
+       "PHOTOGRAPHY             322\n",
+       "HEALTH_AND_FITNESS      306\n",
+       "SOCIAL                  280\n",
+       "NEWS_AND_MAGAZINES      264\n",
+       "TRAVEL_AND_LOCAL        237\n",
+       "BOOKS_AND_REFERENCE     230\n",
+       "SHOPPING                224\n",
+       "DATING                  196\n",
+       "VIDEO_PLAYERS           175\n",
+       "MAPS_AND_NAVIGATION     137\n",
+       "EDUCATION               130\n",
+       "FOOD_AND_DRINK          124\n",
+       "ENTERTAINMENT           111\n",
+       "AUTO_AND_VEHICLES        85\n",
+       "LIBRARIES_AND_DEMO       85\n",
+       "WEATHER                  82\n",
+       "HOUSE_AND_HOME           80\n",
+       "ART_AND_DESIGN           65\n",
+       "EVENTS                   64\n",
+       "PARENTING                60\n",
+       "COMICS                   60\n",
+       "BEAUTY                   53\n",
+       "1.9                       1\n",
+       "Name: Category, dtype: int64"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Category'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "5e654cce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = df.drop(df[\"Category\"].loc[df[\"Category\"]=='1.9'].index)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "bb03b8a1",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FAMILY                 1943\n",
+       "GAME                   1121\n",
+       "TOOLS                   843\n",
+       "BUSINESS                427\n",
+       "MEDICAL                 408\n",
+       "PRODUCTIVITY            407\n",
+       "PERSONALIZATION         388\n",
+       "LIFESTYLE               373\n",
+       "COMMUNICATION           366\n",
+       "FINANCE                 360\n",
+       "SPORTS                  351\n",
+       "PHOTOGRAPHY             322\n",
+       "HEALTH_AND_FITNESS      306\n",
+       "SOCIAL                  280\n",
+       "NEWS_AND_MAGAZINES      264\n",
+       "TRAVEL_AND_LOCAL        237\n",
+       "BOOKS_AND_REFERENCE     230\n",
+       "SHOPPING                224\n",
+       "DATING                  196\n",
+       "VIDEO_PLAYERS           175\n",
+       "MAPS_AND_NAVIGATION     137\n",
+       "EDUCATION               130\n",
+       "FOOD_AND_DRINK          124\n",
+       "ENTERTAINMENT           111\n",
+       "AUTO_AND_VEHICLES        85\n",
+       "LIBRARIES_AND_DEMO       85\n",
+       "WEATHER                  82\n",
+       "HOUSE_AND_HOME           80\n",
+       "ART_AND_DESIGN           65\n",
+       "EVENTS                   64\n",
+       "PARENTING                60\n",
+       "COMICS                   60\n",
+       "BEAUTY                   53\n",
+       "Name: Category, dtype: int64"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Category'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "86a9677a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "App                  0\n",
+       "Category             0\n",
+       "Rating            1465\n",
+       "Reviews              0\n",
+       "Size                 0\n",
+       "Installs             0\n",
+       "Type                 1\n",
+       "Price                0\n",
+       "Content Rating       0\n",
+       "Genres               0\n",
+       "Last Updated         0\n",
+       "Current Ver          8\n",
+       "Android Ver          2\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.isnull().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "b4d853d8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = df.dropna()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "329a68f0",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "App               0\n",
+       "Category          0\n",
+       "Rating            0\n",
+       "Reviews           0\n",
+       "Size              0\n",
+       "Installs          0\n",
+       "Type              0\n",
+       "Price             0\n",
+       "Content Rating    0\n",
+       "Genres            0\n",
+       "Last Updated      0\n",
+       "Current Ver       0\n",
+       "Android Ver       0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.isnull().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "bb43b9b9",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(8886, 13)"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "fa31a8f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['Rating_category'] = df['Rating'].apply(lambda x: 'High' if x >3.5 else 'Low')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "26698aed",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "df['Rating_category'].value_counts().plot(kind='pie',autopct='%1.0f%%', shadow=True)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7fc0b2d6",
+   "metadata": {},
+   "source": [
+    "- The data is skewed towards high ratings given to most apps"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "099fb04b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[\"Reviews\"] = df[\"Reviews\"].astype(float)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "5b50decf",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>count</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>std</th>\n",
+       "      <th>min</th>\n",
+       "      <th>25%</th>\n",
+       "      <th>50%</th>\n",
+       "      <th>75%</th>\n",
+       "      <th>max</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>Rating</th>\n",
+       "      <td>8886.0</td>\n",
+       "      <td>4.187959</td>\n",
+       "      <td>5.224279e-01</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>4.50</td>\n",
+       "      <td>5.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>Reviews</th>\n",
+       "      <td>8886.0</td>\n",
+       "      <td>473092.803174</td>\n",
+       "      <td>2.906007e+06</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>164.0</td>\n",
+       "      <td>4723.0</td>\n",
+       "      <td>71313.25</td>\n",
+       "      <td>78158306.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          count           mean           std  min    25%     50%       75%  \\\n",
+       "Rating   8886.0       4.187959  5.224279e-01  1.0    4.0     4.3      4.50   \n",
+       "Reviews  8886.0  473092.803174  2.906007e+06  1.0  164.0  4723.0  71313.25   \n",
+       "\n",
+       "                max  \n",
+       "Rating          5.0  \n",
+       "Reviews  78158306.0  "
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe().T"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "af6bb761",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAWAAAAEGCAYAAABbzE8LAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjUuMSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/YYfK9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAQ70lEQVR4nO3dbYxc5XnG8evy7sYBb/PSxa0oBhbFEYUGCMFK2jShYJbUdo3dD40CwrEhkWgk6oJNhVpYsbZ5+UJlcC0SyYIUEBSSECIDMkvYGhVoU8oa4hJCXjZheSstzgaauiDw2nc/zJnt7OyuvTvszD0T/j/J8s6cmee558yZa848Z84zjggBABpvTnYBAPBeRQADQBICGACSEMAAkIQABoAk7TO58RFHHBHd3d11KgUAfj3t2rXrFxExv/r6GQVwd3e3BgcHZ68qAHgPsP3CZNczBAEASQhgAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQJKGBPDWrVu1devWRnQFAC2jIQHc39+v/v7+RnQFAC2DIQgASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAkoYE8Ntvv60333xTW7dubUR3ANASGhLABw4cUERoaGioEd0BQEtgCAIAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASdob2dnu3bt1xhln1LWPjo4OXXjhhdq2bduky1etWqU77rhj3HW2FRFjl9va2rR//37NnTtXN910kxYuXChJ2rlzpzZt2qT169drYGBAfX19uvfee3XnnXdq9erVOvnkk3X55Zfr+uuv12mnnTauj5GREa1bt04vvvii+vr6dPTRR+uSSy7Rli1bxtqvxfbt23XDDTfosssu07x587Rp0yb19fXpzDPPnND/xo0b1dfXp9dff/2gfVe2ec4559RcWyuoXC9dXV0Tlg8ODk75nDarkZER9fb2yrauvvrqSR9Xlumuz6GhoVl5fcyGetbiyuA5lEWLFsXg4OCMO1m8eLEOHDgw4/s1g+7ubt16662SpJ6eHo2Ojsq2JGnFihXavn372G07Ozu1d+9edXZ26oEHHhjXzubNm3XfffdJktrb27VgwQINDw+Pa78WZ555piJCttXW1qbR0VG1t7drYGBgQv/333+/VqxYod27dx+078o2H3nkkZprawWV62XdunUTli9fvnzK57RZVW5rK1eunPRxZZnu+rzgggtm5fUxG2ajFtu7ImJR9fUNGYJo1fCVpOHhYQ0NDWnnzp0aHR2VJEWEImLCBrR3796x/3ft2jV2/cjIiHbs2DF2eXR0VMPDw+Par8X27dvH9twjYqy+0dHRccE5MjKi/v5+RYR27Nhx0L6r27z//vtrqq0VVK6X/v5+jYyMjFs+ODg45XParEZGRvTggw+OXX7wwQcnPK4s012fQ0NDs/L6mA31roUx4Gm45pprdN111024fv/+/VPep6+vb+zv2267bSwcp2q/FjfeeOOUy6699tpx/ZffBPft23fQvqvb3Lx5c021tYLK9bJ//37dfvvt45Zv2LBh3OXK57RZVW9r+/btm/C4skx3fVZvk7W+PmZDvWs5ZADbvsj2oO3BPXv2zGrnrWJ4ePigATqZ8ju9pAnDAZO1X4uDDR9V1jswMDBl/dV9V7c5kyGqVlO5XkZHR/Xwww+PW175HE52uRkNDAyMe84iYsLjyjLd9Vm9Tdb6+pgN9a7lkAEcEdsiYlFELJo/f/6sdt4quru71d4+s+OVnZ2dY3/39PQcsv1alMeiJ1NZb09Pz5T1V/dd3ebB+mh1leulvb1dZ5999rjllc/hZJebUU9Pz7jnzPaEx5Vluuuzepus9fUxG+pdC0MQ09Db26srrrhiwvVtbW1T3mfjxo1jf69Zs+agAd7b21tTXZdeeumUy6688spx/c+ZU3qqOzo6Dtp3dZvr16+vqbZWULle2tratHr16nHLqz8yVz6nzap6W+vo6JjwuLJMd31Wb5O1vj5mQ71raUgAlzfyVtTd3a2FCxdq8eLFYxu2bdnW8uXLx922/I7e2dk57is2XV1dWrZs2djl9vb2sXfScvu1WLly5djeju1xe3OVX0Pr6urSkiVLZFvLli07aN/Vbf46fw2tcr0sWbJkwte1Fi1aNOVz2qy6urq0dOnSsctLly5tmq+hTXd9Lly4cFZeH7Oh3rW0bjJOoaOjQxdddNGUy1etWjXhuuqP2eU927lz5457xyvvBa9bt04nnXSSVq9erfPPP1+StHr1am3YsEFz5syZ9J19zZo1OuaYYySV9k57e3s1b968d/2OWt5jXb9+/Vh9lXu/lf2Xaz5U35Vt/rqrXC+TOdhz2qzWrFmjE044QSeeeGLT7P2WTXd9ztbrYzbUs5aGfg/4lFNO0ZYtW2Z8fwBoZanfAwYATEQAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJGlIAM+ZM0e2tXDhwkZ0BwAtob0RncydO1eStHbt2kZ0BwAtgSEIAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAEgIYAJIQwACQhAAGgCQEMAAkIYABIAkBDABJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABI0t6ITpYsWdKIbgCgpTQkgNeuXduIbgCgpTAEAQBJCGAASEIAA0ASAhgAkhDAAJCEAAaAJAQwACQhgAEgCQEMAEkIYABIQgADQBICGACSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEhCAANAEgIYAJI4IqZ/Y3uPpBdq7OsISb+o8b71Rm21obbaUFttmrW26dR1bETMr75yRgH8btgejIhFDelshqitNtRWG2qrTbPW9m7qYggCAJIQwACQpJEBvK2Bfc0UtdWG2mpDbbVp1tpqrqthY8AAgPEYggCAJAQwACSpewDbXmL7x7aHbP91vfubCdtft/2a7R9k11LJ9tG2H7H9Q9vP2r4ku6Yy2++3/W+2dxe1bcyuqZrtNttP234gu5ZKtodtP2P7+7YHs+upZPtDtu+x/SPbz9n+g+yaJMn28cX6Kv/7le1Ls+sqs72ueB38wPZdtt8/o/vXcwzYdpukn0g6W9LLkp6UdF5E/LBunc6A7dMl7ZV0e0R8LLueMttHSjoyIp6y/RuSdkn602ZYb7YtaV5E7LXdIelxSZdExL8mlzbG9npJiyR9ICKWZ9dTZntY0qKIaLqTCWzfJumxiLjZ9vskHR4RbySXNU6RJ69I+lRE1HpC2GzWc5RK2/+JEfGW7W9K2hERt063jXrvAX9S0lBE/Dwi3pF0t6SVde5z2iLiUUm/zK6jWkS8GhFPFX//j6TnJB2VW1VJlOwtLnYU/5rmSK7tBZL+RNLN2bW0CtsflHS6pFskKSLeabbwLZwl6WfNEL4V2iUdZrtd0uGS/mMmd653AB8l6aWKyy+rSYKkVdjulnSqpCeSSxlTfMT/vqTXJD0cEU1Tm6QbJV0u6UByHZMJSd+1vcv2RdnFVDhO0h5Jf18M3dxse152UZM4V9Jd2UWURcQrkv5W0ouSXpX03xHx3Zm0wUG4Jma7U9K3JV0aEb/KrqcsIvZHxMclLZD0SdtNMXxje7mk1yJiV3YtU/hMRHxC0lJJFxdDYM2gXdInJH0tIk6V9L+Smu14zfskrZD0rexaymx/WKVP9MdJ+h1J82yvmkkb9Q7gVyQdXXF5QXEdDqEYX/22pDsj4t7seiZTfEx9RNKS5FLK/lDSimKs9W5Ji23fkVvS/yv2mBQRr0n6jkpDdM3gZUkvV3ySuUelQG4mSyU9FRH/lV1IhR5Jz0fEnojYJ+leSZ+eSQP1DuAnJX3U9nHFO9i5ku6rc58trzjQdYuk5yJic3Y9lWzPt/2h4u/DVDrA+qPUogoR8TcRsSAiulXa1nZGxIz2SOrF9rzigKqKj/efk9QU376JiP+U9JLt44urzpKUfsC3ynlqouGHwouSft/24cVr9iyVjtdMW3tdyipExKjtv5D0kKQ2SV+PiGfr2edM2L5L0hmSjrD9sqS+iLgltypJpT25L0p6phhrlaQrImJHXkljjpR0W3FEeo6kb0ZEU33dq0n9tqTvlF6napf0DxHRn1vSOGsl3VnsKP1c0oXJ9Ywp3rDOlvTn2bVUiognbN8j6SlJo5Ke1gxPS+ZUZABIwkE4AEhCAANAEgIYAJIQwACQhAAGgCnMZMIu2zdUTBr0E9tvHPI+fAsCWWzvl/SMSl/Lel7SF2uZg8D2JkmPRsTA7FaI97paJ+yyvVbSqRHxpYPdjj1gZHorIj5ebNi/lHRxLY1ExFWEL+phsgm7bH/Edn8xp8djtn93krtO68QRAhjN4nsqJmqabAO3/UHbL9ieU9xmnu2XbHfYvtX2nxXXn2b7n4r7PmT7SNu/ZXtXsfwU22H7mOLyz4ozmT5fzOm62/ajSesArWGbpLURcZqkv5L01cqFto9VaX6InYdqqK5nwgHTUZxVd5aK6RBV2sC/EhE/tf0pSV+NiMXFWYF/pNL8E8slPRQR+4qzy8rzZ2yVtDIi9tj+gqRrI+JLLk0k/wFJn5U0KOmzth9XafKeN21fJemPI+KV8qnWQLVigqxPS/pWebuTNLfqZudKuici9h+qPQIYmQ4rQvUolc6hf/gQG/g3JH1BpQA+V1V7HpKOl/Sxoh2pdPr7q8Wyf1HpFO/TJV2n0gRClvRYsfyfJd1aTKrdlJMfoSnMkfRGMRvgVM7VNIfTGIJApreKDflYlcLwYlVs4BX/Tihuf5+kJbZ/U9JpmvgRz5KerbjfSRHxuWLZoyrt/R4rabukUyR9RkUAR8RXJPWqNHvfLttd9XnIaGXFtLDP2/68VJo4y/Yp5eXFePCHVRpSOyQCGOki4k1JfynpMklvaooNvPgljiclbZH0wCQf8X4sab6L3zMrxod/r1j2mKRVkn4aEQdUOrCyTKWflJHtj0TEExFxlUqTkx8tvOcVE3Z9T9Lxtl+2/WVJ50v6su3dkp7V+F/5OVfS3THNr5cxBIGmEBFP2/53lY4eny/pa7Z7VfrJo7sl7S5u+g2VJuU+Y5I23ikOxv2dSz+z067SL2Q8GxHDxZSB5QNsj0taEBGvF5evt/1Rlfai/7GiP7yHRcR5UyyadA7siNgwk/b5HjAAJGEIAgCSEMAAkIQABoAkBDAAJCGAASAJAQwASQhgAEjyfxetScB4KkyGAAAAAElFTkSuQmCC\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sns.boxplot(x='Reviews', data=df)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "f3125c4a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " Outliers via z-score : [56642847.0, 69119316.0, 9642995.0, 11334799.0, 17712922.0, 56646578.0, 11334973.0, 10484169.0, 10790289.0, 12842860.0, 9643041.0, 17714850.0, 11335255.0, 27722264.0, 22426677.0, 23133508.0, 10485308.0, 44891723.0, 14198297.0, 10216538.0, 9881829.0, 27723193.0, 10485334.0, 14198602.0, 22428456.0, 9881908.0, 23134775.0, 14891223.0, 9882639.0, 27724094.0, 14200344.0, 10424925.0, 22429716.0, 14200550.0, 22430188.0, 14201891.0, 27725352.0, 23136735.0, 44893888.0, 10486018.0, 9883367.0, 10055521.0, 9883806.0, 14892469.0, 10979062.0, 14201604.0, 10216997.0, 78158306.0, 66577313.0, 17014787.0, 17014705.0, 66577446.0, 17015352.0, 10858556.0, 10858538.0, 10859051.0, 9235155.0, 9235373.0, 12759663.0, 25655305.0, 11667403.0, 17000166.0, 10483141.0, 14885236.0, 27711703.0, 69109672.0, 10421284.0, 66509917.0, 9876369.0, 25623548.0, 78128208.0, 14184910.0, 10053186.0, 44881447.0, 23125280.0, 22419455.0, 9642112.0, 42916526.0, 10214862.0, 9873470.0, 9231613.0, 11657972.0, 10790092.0, 16771865.0, 11335481.0, 9879473.0, 10847682.0, 12843436.0, 24900999.0, 10981850.0, 12759815.0, 13479633.0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "present_outliers = []\n",
+    "# function for finding outliers\n",
+    "def outliers_via_zscore(input_data):\n",
+    "    threshold = 3\n",
+    "    mean = np.mean(input_data)\n",
+    "    std = np.std(input_data)\n",
+    "    for value in input_data:\n",
+    "        z_score = (value - mean) / std\n",
+    "        if (np.abs(z_score) > threshold):\n",
+    "            present_outliers.append(value)\n",
+    "    return present_outliers\n",
+    "\n",
+    "outliers = outliers_via_zscore(df['Reviews'])\n",
+    "print(f\" Outliers via z-score : {outliers}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "49ba144a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['Reviews'] = np.log(df['Reviews']) #using log transformation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "782f4122",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sns.boxplot(x='Reviews', data=df)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "a0c679bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>count</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>std</th>\n",
+       "      <th>min</th>\n",
+       "      <th>25%</th>\n",
+       "      <th>50%</th>\n",
+       "      <th>75%</th>\n",
+       "      <th>max</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>Rating</th>\n",
+       "      <td>8886.0</td>\n",
+       "      <td>4.187959</td>\n",
+       "      <td>0.522428</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>4.300000</td>\n",
+       "      <td>4.500000</td>\n",
+       "      <td>5.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>Reviews</th>\n",
+       "      <td>8886.0</td>\n",
+       "      <td>8.236167</td>\n",
+       "      <td>3.880832</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>5.099866</td>\n",
+       "      <td>8.460199</td>\n",
+       "      <td>11.174837</td>\n",
+       "      <td>18.174247</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          count      mean       std  min       25%       50%        75%  \\\n",
+       "Rating   8886.0  4.187959  0.522428  1.0  4.000000  4.300000   4.500000   \n",
+       "Reviews  8886.0  8.236167  3.880832  0.0  5.099866  8.460199  11.174837   \n",
+       "\n",
+       "               max  \n",
+       "Rating    5.000000  \n",
+       "Reviews  18.174247  "
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe().T"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "b33aba1c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.693147     82\n",
+       "1.098612     76\n",
+       "1.386294     74\n",
+       "1.609438     74\n",
+       "0.000000     67\n",
+       "             ..\n",
+       "10.922822     1\n",
+       "14.965429     1\n",
+       "13.175424     1\n",
+       "12.390371     1\n",
+       "12.894978     1\n",
+       "Name: Reviews, Length: 5990, dtype: int64"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Reviews'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "63afebfe",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Varies with device    1468\n",
+       "14M                    153\n",
+       "13M                    152\n",
+       "12M                    151\n",
+       "15M                    149\n",
+       "                      ... \n",
+       "383k                     1\n",
+       "454k                     1\n",
+       "812k                     1\n",
+       "442k                     1\n",
+       "619k                     1\n",
+       "Name: Size, Length: 413, dtype: int64"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "23a46dcb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = df.drop(df[\"Size\"].loc[df[\"Size\"]=='Varies with device'].index)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "b287a2ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[\"Size\"] = df[\"Size\"].str.replace('M', '000000')\n",
+    "df[\"Size\"] = df[\"Size\"].str.replace('k', '000')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "dc6702dc",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "14000000    153\n",
+       "13000000    152\n",
+       "12000000    151\n",
+       "15000000    149\n",
+       "11000000    149\n",
+       "           ... \n",
+       "383000        1\n",
+       "454000        1\n",
+       "812000        1\n",
+       "442000        1\n",
+       "619000        1\n",
+       "Name: Size, Length: 412, dtype: int64"
+      ]
+     },
+     "execution_count": 37,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "dd9a8c17",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>App</th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Last Updated</th>\n",
+       "      <th>Current Ver</th>\n",
+       "      <th>Android Ver</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Photo Editor &amp; Candy Camera &amp; Grid &amp; ScrapBook</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000</td>\n",
+       "      <td>10,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>January 7, 2018</td>\n",
+       "      <td>1.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Coloring book moana</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>3.9</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000</td>\n",
+       "      <td>500,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>January 15, 2018</td>\n",
+       "      <td>2.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>U Launcher Lite – FREE Live Cool Themes, Hide ...</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.7</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8.7000000</td>\n",
+       "      <td>5,000,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>August 1, 2018</td>\n",
+       "      <td>1.2.4</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Sketch - Draw &amp; Paint</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000</td>\n",
+       "      <td>50,000,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>June 8, 2018</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>4.2 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Pixel Draw - Number Art Coloring Book</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2.8000000</td>\n",
+       "      <td>100,000+</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>June 20, 2018</td>\n",
+       "      <td>1.1</td>\n",
+       "      <td>4.4 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                 App        Category  Rating  \\\n",
+       "0     Photo Editor & Candy Camera & Grid & ScrapBook  ART_AND_DESIGN     4.1   \n",
+       "1                                Coloring book moana  ART_AND_DESIGN     3.9   \n",
+       "2  U Launcher Lite – FREE Live Cool Themes, Hide ...  ART_AND_DESIGN     4.7   \n",
+       "3                              Sketch - Draw & Paint  ART_AND_DESIGN     4.5   \n",
+       "4              Pixel Draw - Number Art Coloring Book  ART_AND_DESIGN     4.3   \n",
+       "\n",
+       "     Reviews       Size     Installs  Type Price Content Rating  \\\n",
+       "0   5.068904   19000000      10,000+  Free     0       Everyone   \n",
+       "1   6.874198   14000000     500,000+  Free     0       Everyone   \n",
+       "2  11.379508  8.7000000   5,000,000+  Free     0       Everyone   \n",
+       "3  12.281384   25000000  50,000,000+  Free     0           Teen   \n",
+       "4   6.874198  2.8000000     100,000+  Free     0       Everyone   \n",
+       "\n",
+       "                      Genres      Last Updated         Current Ver  \\\n",
+       "0               Art & Design   January 7, 2018               1.0.0   \n",
+       "1  Art & Design;Pretend Play  January 15, 2018               2.0.0   \n",
+       "2               Art & Design    August 1, 2018               1.2.4   \n",
+       "3               Art & Design      June 8, 2018  Varies with device   \n",
+       "4    Art & Design;Creativity     June 20, 2018                 1.1   \n",
+       "\n",
+       "    Android Ver Rating_category  \n",
+       "0  4.0.3 and up            High  \n",
+       "1  4.0.3 and up            High  \n",
+       "2  4.0.3 and up            High  \n",
+       "3    4.2 and up            High  \n",
+       "4    4.4 and up            High  "
+      ]
+     },
+     "execution_count": 38,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "f3179acc",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1.0"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'] = df['Size'].astype(float)\n",
+    "df['Size'].min()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "0d82307f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['Size'] = df['Size'].apply(lambda x: x*1000000 if x <= 10.0 else x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "5ad4e79f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "14000000.0    153\n",
+       "13000000.0    152\n",
+       "12000000.0    151\n",
+       "15000000.0    149\n",
+       "11000000.0    149\n",
+       "             ... \n",
+       "383000.0        1\n",
+       "454000.0        1\n",
+       "812000.0        1\n",
+       "442000.0        1\n",
+       "619000.0        1\n",
+       "Name: Size, Length: 410, dtype: int64"
+      ]
+     },
+     "execution_count": 41,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "29a8386c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7.418000e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>4.171394</td>\n",
+       "      <td>7.609148</td>\n",
+       "      <td>2.276197e+07</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>0.549812</td>\n",
+       "      <td>3.735542</td>\n",
+       "      <td>2.343831e+07</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.400000e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>4.595120</td>\n",
+       "      <td>5.100000e+06</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>4.300000</td>\n",
+       "      <td>7.634095</td>\n",
+       "      <td>1.400000e+07</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>4.500000</td>\n",
+       "      <td>10.515987</td>\n",
+       "      <td>3.300000e+07</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>5.000000</td>\n",
+       "      <td>17.619812</td>\n",
+       "      <td>1.000000e+08</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            Rating      Reviews          Size\n",
+       "count  7418.000000  7418.000000  7.418000e+03\n",
+       "mean      4.171394     7.609148  2.276197e+07\n",
+       "std       0.549812     3.735542  2.343831e+07\n",
+       "min       1.000000     0.000000  1.400000e+04\n",
+       "25%       4.000000     4.595120  5.100000e+06\n",
+       "50%       4.300000     7.634095  1.400000e+07\n",
+       "75%       4.500000    10.515987  3.300000e+07\n",
+       "max       5.000000    17.619812  1.000000e+08"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "eb205b0f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "14000000.0    153\n",
+       "13000000.0    152\n",
+       "12000000.0    151\n",
+       "15000000.0    149\n",
+       "11000000.0    149\n",
+       "             ... \n",
+       "383000.0        1\n",
+       "454000.0        1\n",
+       "812000.0        1\n",
+       "442000.0        1\n",
+       "619000.0        1\n",
+       "Name: Size, Length: 410, dtype: int64"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "7171a500",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0            10,000+\n",
+       "1           500,000+\n",
+       "2         5,000,000+\n",
+       "3        50,000,000+\n",
+       "4           100,000+\n",
+       "            ...     \n",
+       "10833         1,000+\n",
+       "10834           500+\n",
+       "10836         5,000+\n",
+       "10837           100+\n",
+       "10840    10,000,000+\n",
+       "Name: Installs, Length: 7418, dtype: object"
+      ]
+     },
+     "execution_count": 44,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Installs']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "a06675ce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[\"Installs\"] = df[\"Installs\"].str.replace('+', '')\n",
+    "df[\"Installs\"] = df[\"Installs\"].str.replace(',', '')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "d86671b2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0           10000\n",
+       "1          500000\n",
+       "2         5000000\n",
+       "3        50000000\n",
+       "4          100000\n",
+       "           ...   \n",
+       "10833        1000\n",
+       "10834         500\n",
+       "10836        5000\n",
+       "10837         100\n",
+       "10840    10000000\n",
+       "Name: Installs, Length: 7418, dtype: object"
+      ]
+     },
+     "execution_count": 46,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Installs']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "9240e6b2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0          6873\n",
+       "$0.99       103\n",
+       "$2.99        98\n",
+       "$4.99        61\n",
+       "$1.99        53\n",
+       "           ... \n",
+       "$6.49         1\n",
+       "$1.29         1\n",
+       "$299.99       1\n",
+       "$379.99       1\n",
+       "$1.20         1\n",
+       "Name: Price, Length: 68, dtype: int64"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Price'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "1b91ed40",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[\"Price\"] = df[\"Price\"].str.replace('$', '')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "46a94b77",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0         6873\n",
+       "0.99       103\n",
+       "2.99        98\n",
+       "4.99        61\n",
+       "1.99        53\n",
+       "          ... \n",
+       "6.49         1\n",
+       "1.29         1\n",
+       "299.99       1\n",
+       "379.99       1\n",
+       "1.20         1\n",
+       "Name: Price, Length: 68, dtype: int64"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Price'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "ae651430",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['Price'] = df['Price'].astype(float)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "3065322a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.00      6873\n",
+       "0.99       103\n",
+       "2.99        98\n",
+       "4.99        61\n",
+       "1.99        53\n",
+       "          ... \n",
+       "6.49         1\n",
+       "1.29         1\n",
+       "299.99       1\n",
+       "379.99       1\n",
+       "1.20         1\n",
+       "Name: Price, Length: 68, dtype: int64"
+      ]
+     },
+     "execution_count": 51,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Price'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "74d625fa",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Price</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7.418000e+03</td>\n",
+       "      <td>7418.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>4.171394</td>\n",
+       "      <td>7.609148</td>\n",
+       "      <td>2.276197e+07</td>\n",
+       "      <td>1.117168</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>0.549812</td>\n",
+       "      <td>3.735542</td>\n",
+       "      <td>2.343831e+07</td>\n",
+       "      <td>17.715707</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.400000e+04</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>4.595120</td>\n",
+       "      <td>5.100000e+06</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>4.300000</td>\n",
+       "      <td>7.634095</td>\n",
+       "      <td>1.400000e+07</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>4.500000</td>\n",
+       "      <td>10.515987</td>\n",
+       "      <td>3.300000e+07</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>5.000000</td>\n",
+       "      <td>17.619812</td>\n",
+       "      <td>1.000000e+08</td>\n",
+       "      <td>400.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            Rating      Reviews          Size        Price\n",
+       "count  7418.000000  7418.000000  7.418000e+03  7418.000000\n",
+       "mean      4.171394     7.609148  2.276197e+07     1.117168\n",
+       "std       0.549812     3.735542  2.343831e+07    17.715707\n",
+       "min       1.000000     0.000000  1.400000e+04     0.000000\n",
+       "25%       4.000000     4.595120  5.100000e+06     0.000000\n",
+       "50%       4.300000     7.634095  1.400000e+07     0.000000\n",
+       "75%       4.500000    10.515987  3.300000e+07     0.000000\n",
+       "max       5.000000    17.619812  1.000000e+08   400.000000"
+      ]
+     },
+     "execution_count": 52,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "id": "d6723453",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>App</th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Last Updated</th>\n",
+       "      <th>Current Ver</th>\n",
+       "      <th>Android Ver</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Photo Editor &amp; Candy Camera &amp; Grid &amp; ScrapBook</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>January 7, 2018</td>\n",
+       "      <td>1.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Coloring book moana</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>3.9</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000.0</td>\n",
+       "      <td>500000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>January 15, 2018</td>\n",
+       "      <td>2.0.0</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>U Launcher Lite – FREE Live Cool Themes, Hide ...</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.7</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>5000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>August 1, 2018</td>\n",
+       "      <td>1.2.4</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Sketch - Draw &amp; Paint</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000.0</td>\n",
+       "      <td>50000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>June 8, 2018</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>4.2 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Pixel Draw - Number Art Coloring Book</td>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2800000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>June 20, 2018</td>\n",
+       "      <td>1.1</td>\n",
+       "      <td>4.4 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                 App        Category  Rating  \\\n",
+       "0     Photo Editor & Candy Camera & Grid & ScrapBook  ART_AND_DESIGN     4.1   \n",
+       "1                                Coloring book moana  ART_AND_DESIGN     3.9   \n",
+       "2  U Launcher Lite – FREE Live Cool Themes, Hide ...  ART_AND_DESIGN     4.7   \n",
+       "3                              Sketch - Draw & Paint  ART_AND_DESIGN     4.5   \n",
+       "4              Pixel Draw - Number Art Coloring Book  ART_AND_DESIGN     4.3   \n",
+       "\n",
+       "     Reviews        Size  Installs  Type  Price Content Rating  \\\n",
+       "0   5.068904  19000000.0     10000  Free    0.0       Everyone   \n",
+       "1   6.874198  14000000.0    500000  Free    0.0       Everyone   \n",
+       "2  11.379508   8700000.0   5000000  Free    0.0       Everyone   \n",
+       "3  12.281384  25000000.0  50000000  Free    0.0           Teen   \n",
+       "4   6.874198   2800000.0    100000  Free    0.0       Everyone   \n",
+       "\n",
+       "                      Genres      Last Updated         Current Ver  \\\n",
+       "0               Art & Design   January 7, 2018               1.0.0   \n",
+       "1  Art & Design;Pretend Play  January 15, 2018               2.0.0   \n",
+       "2               Art & Design    August 1, 2018               1.2.4   \n",
+       "3               Art & Design      June 8, 2018  Varies with device   \n",
+       "4    Art & Design;Creativity     June 20, 2018                 1.1   \n",
+       "\n",
+       "    Android Ver Rating_category  \n",
+       "0  4.0.3 and up            High  \n",
+       "1  4.0.3 and up            High  \n",
+       "2  4.0.3 and up            High  \n",
+       "3    4.2 and up            High  \n",
+       "4    4.4 and up            High  "
+      ]
+     },
+     "execution_count": 53,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "id": "443459fa",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>App</th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Last Updated</th>\n",
+       "      <th>Current Ver</th>\n",
+       "      <th>Android Ver</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>4983</th>\n",
+       "      <td>My baby firework (Remove ad)</td>\n",
+       "      <td>FAMILY</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>3.401197</td>\n",
+       "      <td>14000.0</td>\n",
+       "      <td>1000</td>\n",
+       "      <td>Paid</td>\n",
+       "      <td>0.99</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Entertainment</td>\n",
+       "      <td>April 25, 2013</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>Varies with device</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4977</th>\n",
+       "      <td>Ad Remove Plugin for App2SD</td>\n",
+       "      <td>PRODUCTIVITY</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>4.189655</td>\n",
+       "      <td>17000.0</td>\n",
+       "      <td>1000</td>\n",
+       "      <td>Paid</td>\n",
+       "      <td>1.29</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Productivity</td>\n",
+       "      <td>September 25, 2013</td>\n",
+       "      <td>1.0.0</td>\n",
+       "      <td>2.2 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10072</th>\n",
+       "      <td>ExDialer PRO Key</td>\n",
+       "      <td>COMMUNICATION</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>8.607765</td>\n",
+       "      <td>17000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Paid</td>\n",
+       "      <td>3.99</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Communication</td>\n",
+       "      <td>January 15, 2014</td>\n",
+       "      <td>81</td>\n",
+       "      <td>2.1 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9781</th>\n",
+       "      <td>Fill 'er Up</td>\n",
+       "      <td>TRAVEL_AND_LOCAL</td>\n",
+       "      <td>3.2</td>\n",
+       "      <td>4.060443</td>\n",
+       "      <td>18000.0</td>\n",
+       "      <td>5000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Travel &amp; Local</td>\n",
+       "      <td>February 27, 2017</td>\n",
+       "      <td>1.1</td>\n",
+       "      <td>1.6 and up</td>\n",
+       "      <td>Low</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8022</th>\n",
+       "      <td>Morse Code Reader</td>\n",
+       "      <td>COMMUNICATION</td>\n",
+       "      <td>3.9</td>\n",
+       "      <td>7.269617</td>\n",
+       "      <td>20000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Communication</td>\n",
+       "      <td>August 26, 2013</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>1.6 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10212</th>\n",
+       "      <td>Stickers for Imo, fb, whatsapp</td>\n",
+       "      <td>SOCIAL</td>\n",
+       "      <td>4.4</td>\n",
+       "      <td>5.365976</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Social</td>\n",
+       "      <td>October 23, 2016</td>\n",
+       "      <td>1.0.0.2</td>\n",
+       "      <td>2.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10633</th>\n",
+       "      <td>Florida Offline Road Map</td>\n",
+       "      <td>TRAVEL_AND_LOCAL</td>\n",
+       "      <td>3.8</td>\n",
+       "      <td>4.969813</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Travel &amp; Local</td>\n",
+       "      <td>October 2, 2014</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>2.3.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>343</th>\n",
+       "      <td>My Tele2</td>\n",
+       "      <td>COMMUNICATION</td>\n",
+       "      <td>4.3</td>\n",
+       "      <td>11.974639</td>\n",
+       "      <td>8800000.0</td>\n",
+       "      <td>5000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Communication</td>\n",
+       "      <td>August 3, 2018</td>\n",
+       "      <td>2.4.1</td>\n",
+       "      <td>4.4 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>438</th>\n",
+       "      <td>Should I Answer?</td>\n",
+       "      <td>COMMUNICATION</td>\n",
+       "      <td>4.8</td>\n",
+       "      <td>12.377788</td>\n",
+       "      <td>8800000.0</td>\n",
+       "      <td>1000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Communication</td>\n",
+       "      <td>July 26, 2018</td>\n",
+       "      <td>2018.1.715</td>\n",
+       "      <td>4.0 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>592</th>\n",
+       "      <td>A hundred</td>\n",
+       "      <td>DATING</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>5.463832</td>\n",
+       "      <td>8800000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>Mature 17+</td>\n",
+       "      <td>Dating</td>\n",
+       "      <td>March 29, 2018</td>\n",
+       "      <td>3.9.2</td>\n",
+       "      <td>4.0.3 and up</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>2839 rows × 14 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                  App          Category  Rating    Reviews  \\\n",
+       "4983     My baby firework (Remove ad)            FAMILY     4.1   3.401197   \n",
+       "4977      Ad Remove Plugin for App2SD      PRODUCTIVITY     4.1   4.189655   \n",
+       "10072                ExDialer PRO Key     COMMUNICATION     4.5   8.607765   \n",
+       "9781                      Fill 'er Up  TRAVEL_AND_LOCAL     3.2   4.060443   \n",
+       "8022                Morse Code Reader     COMMUNICATION     3.9   7.269617   \n",
+       "...                               ...               ...     ...        ...   \n",
+       "10212  Stickers for Imo, fb, whatsapp            SOCIAL     4.4   5.365976   \n",
+       "10633        Florida Offline Road Map  TRAVEL_AND_LOCAL     3.8   4.969813   \n",
+       "343                          My Tele2     COMMUNICATION     4.3  11.974639   \n",
+       "438                  Should I Answer?     COMMUNICATION     4.8  12.377788   \n",
+       "592                         A hundred            DATING     4.1   5.463832   \n",
+       "\n",
+       "            Size Installs  Type  Price Content Rating          Genres  \\\n",
+       "4983     14000.0     1000  Paid   0.99       Everyone   Entertainment   \n",
+       "4977     17000.0     1000  Paid   1.29       Everyone    Productivity   \n",
+       "10072    17000.0   100000  Paid   3.99       Everyone   Communication   \n",
+       "9781     18000.0     5000  Free   0.00       Everyone  Travel & Local   \n",
+       "8022     20000.0   100000  Free   0.00       Everyone   Communication   \n",
+       "...          ...      ...   ...    ...            ...             ...   \n",
+       "10212  8700000.0    10000  Free   0.00           Teen          Social   \n",
+       "10633  8700000.0    10000  Free   0.00       Everyone  Travel & Local   \n",
+       "343    8800000.0  5000000  Free   0.00       Everyone   Communication   \n",
+       "438    8800000.0  1000000  Free   0.00       Everyone   Communication   \n",
+       "592    8800000.0    10000  Free   0.00     Mature 17+          Dating   \n",
+       "\n",
+       "             Last Updated         Current Ver         Android Ver  \\\n",
+       "4983       April 25, 2013  Varies with device  Varies with device   \n",
+       "4977   September 25, 2013               1.0.0          2.2 and up   \n",
+       "10072    January 15, 2014                  81          2.1 and up   \n",
+       "9781    February 27, 2017                 1.1          1.6 and up   \n",
+       "8022      August 26, 2013                 1.0          1.6 and up   \n",
+       "...                   ...                 ...                 ...   \n",
+       "10212    October 23, 2016             1.0.0.2          2.3 and up   \n",
+       "10633     October 2, 2014                 5.0        2.3.3 and up   \n",
+       "343        August 3, 2018               2.4.1          4.4 and up   \n",
+       "438         July 26, 2018          2018.1.715          4.0 and up   \n",
+       "592        March 29, 2018               3.9.2        4.0.3 and up   \n",
+       "\n",
+       "      Rating_category  \n",
+       "4983             High  \n",
+       "4977             High  \n",
+       "10072            High  \n",
+       "9781              Low  \n",
+       "8022             High  \n",
+       "...               ...  \n",
+       "10212            High  \n",
+       "10633            High  \n",
+       "343              High  \n",
+       "438              High  \n",
+       "592              High  \n",
+       "\n",
+       "[2839 rows x 14 columns]"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.nsmallest(2839, 'Size')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "id": "4b5a01d8",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "14000.0"
+      ]
+     },
+     "execution_count": 55,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Size'].min()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "id": "0ce7c2c1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df1 = df.copy()\n",
+    "df1 = df1.drop([\"Rating\", \"App\", \"Last Updated\", \"Current Ver\", \"Android Ver\"], axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "id": "8495f723",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000.0</td>\n",
+       "      <td>500000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>5000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000.0</td>\n",
+       "      <td>50000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2800000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>High</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         Category    Reviews        Size  Installs  Type  Price  \\\n",
+       "0  ART_AND_DESIGN   5.068904  19000000.0     10000  Free    0.0   \n",
+       "1  ART_AND_DESIGN   6.874198  14000000.0    500000  Free    0.0   \n",
+       "2  ART_AND_DESIGN  11.379508   8700000.0   5000000  Free    0.0   \n",
+       "3  ART_AND_DESIGN  12.281384  25000000.0  50000000  Free    0.0   \n",
+       "4  ART_AND_DESIGN   6.874198   2800000.0    100000  Free    0.0   \n",
+       "\n",
+       "  Content Rating                     Genres Rating_category  \n",
+       "0       Everyone               Art & Design            High  \n",
+       "1       Everyone  Art & Design;Pretend Play            High  \n",
+       "2       Everyone               Art & Design            High  \n",
+       "3           Teen               Art & Design            High  \n",
+       "4       Everyone    Art & Design;Creativity            High  "
+      ]
+     },
+     "execution_count": 57,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "id": "8cee5bfa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df1[\"Rating_category\"] = df1[\"Rating_category\"].str.replace('High', '1')\n",
+    "df1[\"Rating_category\"] = df1[\"Rating_category\"].str.replace('Low', '0')\n",
+    "df1[\"Rating_category\"] = df1[\"Rating_category\"].astype(int)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "id": "dfbfc7bb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000.0</td>\n",
+       "      <td>500000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>5000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000.0</td>\n",
+       "      <td>50000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2800000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         Category    Reviews        Size  Installs  Type  Price  \\\n",
+       "0  ART_AND_DESIGN   5.068904  19000000.0     10000  Free    0.0   \n",
+       "1  ART_AND_DESIGN   6.874198  14000000.0    500000  Free    0.0   \n",
+       "2  ART_AND_DESIGN  11.379508   8700000.0   5000000  Free    0.0   \n",
+       "3  ART_AND_DESIGN  12.281384  25000000.0  50000000  Free    0.0   \n",
+       "4  ART_AND_DESIGN   6.874198   2800000.0    100000  Free    0.0   \n",
+       "\n",
+       "  Content Rating                     Genres  Rating_category  \n",
+       "0       Everyone               Art & Design                1  \n",
+       "1       Everyone  Art & Design;Pretend Play                1  \n",
+       "2       Everyone               Art & Design                1  \n",
+       "3           Teen               Art & Design                1  \n",
+       "4       Everyone    Art & Design;Creativity                1  "
+      ]
+     },
+     "execution_count": 59,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "id": "6284fa98",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7.418000e+03</td>\n",
+       "      <td>7418.000000</td>\n",
+       "      <td>7418.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>7.609148</td>\n",
+       "      <td>2.276197e+07</td>\n",
+       "      <td>1.117168</td>\n",
+       "      <td>0.888919</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>3.735542</td>\n",
+       "      <td>2.343831e+07</td>\n",
+       "      <td>17.715707</td>\n",
+       "      <td>0.314254</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.400000e+04</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>4.595120</td>\n",
+       "      <td>5.100000e+06</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>7.634095</td>\n",
+       "      <td>1.400000e+07</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>10.515987</td>\n",
+       "      <td>3.300000e+07</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>17.619812</td>\n",
+       "      <td>1.000000e+08</td>\n",
+       "      <td>400.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           Reviews          Size        Price  Rating_category\n",
+       "count  7418.000000  7.418000e+03  7418.000000      7418.000000\n",
+       "mean      7.609148  2.276197e+07     1.117168         0.888919\n",
+       "std       3.735542  2.343831e+07    17.715707         0.314254\n",
+       "min       0.000000  1.400000e+04     0.000000         0.000000\n",
+       "25%       4.595120  5.100000e+06     0.000000         1.000000\n",
+       "50%       7.634095  1.400000e+07     0.000000         1.000000\n",
+       "75%      10.515987  3.300000e+07     0.000000         1.000000\n",
+       "max      17.619812  1.000000e+08   400.000000         1.000000"
+      ]
+     },
+     "execution_count": 60,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "id": "95059406",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df1.reset_index(inplace=True,drop=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 62,
+   "id": "08e44e20",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000.0</td>\n",
+       "      <td>10000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000.0</td>\n",
+       "      <td>500000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Pretend Play</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>5000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000.0</td>\n",
+       "      <td>50000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Teen</td>\n",
+       "      <td>Art &amp; Design</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>ART_AND_DESIGN</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2800000.0</td>\n",
+       "      <td>100000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Art &amp; Design;Creativity</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         Category    Reviews        Size  Installs  Type  Price  \\\n",
+       "0  ART_AND_DESIGN   5.068904  19000000.0     10000  Free    0.0   \n",
+       "1  ART_AND_DESIGN   6.874198  14000000.0    500000  Free    0.0   \n",
+       "2  ART_AND_DESIGN  11.379508   8700000.0   5000000  Free    0.0   \n",
+       "3  ART_AND_DESIGN  12.281384  25000000.0  50000000  Free    0.0   \n",
+       "4  ART_AND_DESIGN   6.874198   2800000.0    100000  Free    0.0   \n",
+       "\n",
+       "  Content Rating                     Genres  Rating_category  \n",
+       "0       Everyone               Art & Design                1  \n",
+       "1       Everyone  Art & Design;Pretend Play                1  \n",
+       "2       Everyone               Art & Design                1  \n",
+       "3           Teen               Art & Design                1  \n",
+       "4       Everyone    Art & Design;Creativity                1  "
+      ]
+     },
+     "execution_count": 62,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 63,
+   "id": "86164d7a",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>7418</td>\n",
+       "      <td>7418</td>\n",
+       "      <td>7418</td>\n",
+       "      <td>7418</td>\n",
+       "      <td>7418</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>unique</th>\n",
+       "      <td>33</td>\n",
+       "      <td>19</td>\n",
+       "      <td>2</td>\n",
+       "      <td>6</td>\n",
+       "      <td>112</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>top</th>\n",
+       "      <td>FAMILY</td>\n",
+       "      <td>1000000</td>\n",
+       "      <td>Free</td>\n",
+       "      <td>Everyone</td>\n",
+       "      <td>Tools</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>freq</th>\n",
+       "      <td>1590</td>\n",
+       "      <td>1229</td>\n",
+       "      <td>6873</td>\n",
+       "      <td>5952</td>\n",
+       "      <td>633</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       Category Installs  Type Content Rating Genres\n",
+       "count      7418     7418  7418           7418   7418\n",
+       "unique       33       19     2              6    112\n",
+       "top      FAMILY  1000000  Free       Everyone  Tools\n",
+       "freq       1590     1229  6873           5952    633"
+      ]
+     },
+     "execution_count": 63,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.describe(include='O')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 64,
+   "id": "fe414147",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_cat = df1.select_dtypes(include='object')\n",
+    "le = LabelEncoder()\n",
+    "for col in df_cat:\n",
+    "    df1[col] = le.fit_transform(df1[col])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 65,
+   "id": "8b03dfa1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "      <th>Rating_category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>5.068904</td>\n",
+       "      <td>19000000.0</td>\n",
+       "      <td>4</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>14000000.0</td>\n",
+       "      <td>15</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>11</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0</td>\n",
+       "      <td>11.379508</td>\n",
+       "      <td>8700000.0</td>\n",
+       "      <td>16</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0</td>\n",
+       "      <td>12.281384</td>\n",
+       "      <td>25000000.0</td>\n",
+       "      <td>17</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>4</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>0</td>\n",
+       "      <td>6.874198</td>\n",
+       "      <td>2800000.0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>10</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Category    Reviews        Size  Installs  Type  Price  Content Rating  \\\n",
+       "0         0   5.068904  19000000.0         4     0    0.0               1   \n",
+       "1         0   6.874198  14000000.0        15     0    0.0               1   \n",
+       "2         0  11.379508   8700000.0        16     0    0.0               1   \n",
+       "3         0  12.281384  25000000.0        17     0    0.0               4   \n",
+       "4         0   6.874198   2800000.0         5     0    0.0               1   \n",
+       "\n",
+       "   Genres  Rating_category  \n",
+       "0       9                1  \n",
+       "1      11                1  \n",
+       "2       9                1  \n",
+       "3       9                1  \n",
+       "4      10                1  "
+      ]
+     },
+     "execution_count": 65,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 66,
+   "id": "e2f7b85f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y=df1['Rating_category']\n",
+    "X = df1.drop(['Rating_category'],axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 67,
+   "id": "68f85a90",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X_train, X_test, y_train, y_test =train_test_split(X,y,test_size=0.3,random_state=42)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "id": "e4df3723",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mm = MinMaxScaler()\n",
+    "\n",
+    "X_train.iloc[:,:] = mm.fit_transform(X_train.iloc[:,:])\n",
+    "X_test.iloc[:,:] = mm.transform(X_test.iloc[:,:])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 69,
+   "id": "ddcf8339",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Category</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Size</th>\n",
+       "      <th>Installs</th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>Content Rating</th>\n",
+       "      <th>Genres</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>3393</th>\n",
+       "      <td>0.65625</td>\n",
+       "      <td>0.213464</td>\n",
+       "      <td>0.022863</td>\n",
+       "      <td>0.058824</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.639640</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>272</th>\n",
+       "      <td>0.18750</td>\n",
+       "      <td>0.666178</td>\n",
+       "      <td>0.026864</td>\n",
+       "      <td>0.352941</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.306306</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2042</th>\n",
+       "      <td>0.90625</td>\n",
+       "      <td>0.591355</td>\n",
+       "      <td>0.035865</td>\n",
+       "      <td>0.294118</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.927928</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3755</th>\n",
+       "      <td>0.34375</td>\n",
+       "      <td>0.365188</td>\n",
+       "      <td>0.084872</td>\n",
+       "      <td>0.235294</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.324324</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5209</th>\n",
+       "      <td>0.90625</td>\n",
+       "      <td>0.323144</td>\n",
+       "      <td>0.027864</td>\n",
+       "      <td>0.764706</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.927928</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Category   Reviews      Size  Installs  Type  Price  Content Rating  \\\n",
+       "3393   0.65625  0.213464  0.022863  0.058824   0.0    0.0             0.0   \n",
+       "272    0.18750  0.666178  0.026864  0.352941   0.0    0.0             0.0   \n",
+       "2042   0.90625  0.591355  0.035865  0.294118   0.0    0.0             0.0   \n",
+       "3755   0.34375  0.365188  0.084872  0.235294   0.0    0.0             0.0   \n",
+       "5209   0.90625  0.323144  0.027864  0.764706   0.0    0.0             0.0   \n",
+       "\n",
+       "        Genres  \n",
+       "3393  0.639640  \n",
+       "272   0.306306  \n",
+       "2042  0.927928  \n",
+       "3755  0.324324  \n",
+       "5209  0.927928  "
+      ]
+     },
+     "execution_count": 69,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 70,
+   "id": "996b9546",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def print_scores(model, X_train, X_test, y_train, y_test): \n",
+    "    model.fit(X_train, y_train)\n",
+    "    pred = model.predict(X_test)\n",
+    "    train_score = model.score(X_train, y_train)\n",
+    "    test_score = model.score(X_test, y_test)\n",
+    "    print(\"The training score is:\")\n",
+    "    print(train_score)\n",
+    "    print(\"The testing score is:\")\n",
+    "    print(test_score)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 72,
+   "id": "46a8d76d",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "1.0\n",
+      "The testing score is:\n",
+      "0.8337825696316262\n"
+     ]
+    }
+   ],
+   "source": [
+    "dt = DecisionTreeClassifier()\n",
+    "print_scores(dt, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 73,
+   "id": "e1ca9d46",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "1.0\n",
+      "The testing score is:\n",
+      "0.8858939802336029\n"
+     ]
+    }
+   ],
+   "source": [
+    "rf = RandomForestClassifier()\n",
+    "print_scores(rf, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 74,
+   "id": "511be513",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "0.9944144838212635\n",
+      "The testing score is:\n",
+      "0.8692722371967655\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import BaggingClassifier\n",
+    "bg = BaggingClassifier()\n",
+    "print_scores(bg, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "id": "b55343b1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "0.8934899845916795\n",
+      "The testing score is:\n",
+      "0.889487870619946\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import GradientBoostingClassifier\n",
+    "gb = GradientBoostingClassifier()\n",
+    "print_scores(gb, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 76,
+   "id": "62e234e3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "0.8886748844375963\n",
+      "The testing score is:\n",
+      "0.889937106918239\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import AdaBoostClassifier\n",
+    "ab = AdaBoostClassifier()\n",
+    "print_scores(ab, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "id": "8a81ce94",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The training score is:\n",
+      "0.9112095531587057\n",
+      "The testing score is:\n",
+      "0.8854447439353099\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import StackingClassifier\n",
+    "estimators = [('dt', dt), ('rf', rf), ('bg', bg), ('gb', gb), ('ab', ab)]\n",
+    "clf = StackingClassifier(estimators = estimators, final_estimator = rf)\n",
+    "\n",
+    "print_scores(clf, X_train, X_test, y_train, y_test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ff44501",
+   "metadata": {},
+   "source": [
+    "## Conclusions\n",
+    "#### Decision Tree, Random Forest and Bagging classifiers are all overfitting.\n",
+    "#### When applying boosting methods, we get a good result for train and test data\n",
+    "#### Since the target label was skewed to higher rating, we would get better accuracy if the classes were balanced instead. From the current dataset we were able to predict the target classes with 88% accuracy using boosting methods, though the classification is biased to the majority class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "20121e40",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

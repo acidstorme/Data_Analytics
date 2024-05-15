@@ -1,0 +1,51 @@
+Assume that len(sensor_mapping_list) = n
+
+
+def OverloadNodeHelper(self,l, r):
+        if l == r:
+            return self.sensor_mapping_list[r]                                   ------------ 1 operation
+        
+        if l < r:                                                                ------------ 1 operation
+            mid = (r+l)//2                                                       ------------ 1 operation
+
+            X = self.OverloadNodeHelper(l, mid)
+            Y = self.OverloadNodeHelper(mid+1, r)
+
+        if X==Y:                                                                 ------------ 1 operation
+            return X                                                             ------------ 1 operation
+
+
+        Xcount = self.SensorAssignedCount(self.sensor_mapping_list, l, r, X)     ------------ at most n operations
+        Ycount = self.SensorAssignedCount(self.sensor_mapping_list, l, r, Y)     ------------ at most n operations
+
+        if r-l+1 == len(self.sensor_mapping_list):                               ------------ 1 operation
+            if Xcount >= len(self.sensor_mapping_list)//2:                       ------------ 1 operation
+                return X                                                         ------------ 1 operation
+            elif Ycount >= len(self.sensor_mapping_list)//2:                     ------------ 1 operation
+                return Y                                                         ------------ 1 operation
+            return None                                                          ------------ 1 operation
+
+        if Xcount > Ycount:                                                      ------------ 1 operation
+            return X                                                             ------------ 1 operation
+        else:
+            return                                                               ------------ 1 operation
+
+
+Space Complexity:
+
+Size of sensor_mapping_list = n
+Total Space Complexity = O(n)
+
+Recurrence Relation:
+
+Divide part has O(1) time complexity
+Conquer part has 2T(n/2) time complexity
+The Merge/Combine part has 2 iterations over length n = O(n) + O(n)
+Therefore,
+T(n) = O(1) + 2T(n/2) + O(n)
+T(n) = 2T(n/2) + O(n)
+
+Time Complexity:
+Since most operations except counting in subarrays are constant time operations, we can assume there are 2n operations in (logn + 1) levels
+Therefore,
+2n(logn +1) = 2nlogn + 2n = O(nlogn)
